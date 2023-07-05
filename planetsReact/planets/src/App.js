@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 function App() {
 
   const [planets, setPlanets] = useState([]);
-  const [planetName, setPlanetName] = useState("")
+  const [creatureName, setCreatureName] = useState("")
   const [species, setSpecies] = useState([])
   const [creatures, setCreatures] = useState([]);
   // // const [googleLoaded, setGoogleLoaded] = useState(false)
@@ -59,40 +59,63 @@ fetch("http://localhost:8080/creatures")
     setCreatures(data);
   })
 }
+
+const postCreature = (payload) => {
+    return fetch ( "http://localhost:8080/creatures", {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+}
+
+
 const listPlanets = planets.map((planet) => (
     <p>{planet.name}</p>
 )) 
+
 const listSpecies = species.map((species) => (
-  <p>{species.name}</p>
+  <div>
+  <h3>{species.planet.name}</h3>
+  <li>{species.name}</li>
+  </div>
 )) 
 const listCreatures = creatures.map((creature) => (
-  <p>{creature.name}</p>
+  <div>
+  {/* <h3>{creature.species.planet.name}</h3> */}
+  <h1>{creature.name} :</h1>
+  <h3>Species</h3>
+  <li>{creature.species.name}</li>
+  <h3>Planet</h3>
+  <li>{creature.species.planet.name}</li>
+  </div>
 )) 
-const savePlanet = (evt) => {
-  evt.preventDefault();
-  const newPlanet = { id: Date.now(), name: planetName}
-  const planetListCopy = [...planets, newPlanet]
-  setPlanets(planetListCopy)
-  setPlanetName("")
+const saveCreature = () => {
+  const newCreature = { id: Date.now(), name: creatureName}
+  const creatureListCopy = [...creatures, newCreature]
+  setCreatures(creatureListCopy)
+  setCreatureName("")
 }
-const handlePlanetInput = (evt) => {
-  setPlanetName(evt.target.value);
+const handleCreatureInput = (evt) => {
+  setCreatureName(evt.target.value);
+  postCreature(creatureName)
+    .then((data) => {saveCreature(data)})
 }
 
 
 
   return (
     <div className="App">
-    <form action='post' onSubmit={savePlanet}>
-    <label htmlFor="new-planet">Add a new planet:</label>
-    <input id="new-todo" type="text" onChange={handlePlanetInput} value={planetName} />
+    <form action='post' onSubmit={saveCreature}>
+    <label htmlFor="new-creature">Add a new creature:</label>
+    <input id="new-creature" type="text" onChange={handleCreatureInput} value={creatureName} />
     <input type="submit" value="Save" className="save-button" />
     </form>
-    <h1>Planets</h1>
-      {listPlanets}
-      <h1>Species</h1>
-      {listSpecies}
-      <h1>Creatures</h1>
+      {/* <h1>Planets</h1> */}
+      {/* {listSpecies} */}
+      {/* <h1>Species</h1>
+      {listSpecies} */} 
+      {/* <h1>Creatures</h1> */}
       {listCreatures}
     </div>
   );
